@@ -77,12 +77,19 @@ export class ConfigLoader {
     return this.getValue('PR_READY_STATE', false, 'all');
   }
 
-  pullRequestMustPassChecks(): string {
-    return this.getValue('PR_MUST_PASS_CHECKS', false, false);
+  pullRequestMustPassChecks(): boolean {
+    const val = this.getValue('PR_MUST_PASS_CHECKS', false, 'false');
+    return val === 'true';
   }
 
-  checkSuitesToPass(): string[] {
-    return this.getValue('PR_CHECK_SUITS_TO_PASS', false, []);
+  checkSuitesToPass(): Array<string> {
+    const rawLabels = this.getValue('PR_CHECK_SUITS_TO_PASS', false, '')
+      .toString()
+      .trim();
+    if (rawLabels === '') {
+      return [];
+    }
+    return rawLabels.split(',').map((label: string) => label.trim());
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
