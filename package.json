@@ -45,7 +45,7 @@
   },
   "jest": {
     "clearMocks": true,
-    "collectCoverage": true,
+    "collectCoverage": false,
     "coverageDirectory": "coverage",
     "coverageProvider": "v8",
     "globals": {
@@ -60,6 +60,7 @@
     "testEnvironment": "node",
     "transform": {
       ".(ts|tsx)": "ts-jest"
-    }
+    },
+    "verbose": true
   }
 }

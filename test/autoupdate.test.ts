@@ -135,7 +135,229 @@ const validPull = {
   draft: false,
 };
 const clonePull = () => JSON.parse(JSON.stringify(validPull));
+const checkRunsMock = {
+  total_count: 1,
+  check_runs: [
+    {
+      id: 6368329592,
+      name: 'Mergeable: Title and description check',
+      node_id: 'CR_kwDOGkv22s8AAAABe5T_eA',
+      head_sha: 'fe729deda9f7efd338ff3491e914cb6ac2911631',
+      external_id: '',
+      status: 'completed',
+      conclusion: 'success',
+      started_at: '2022-05-10T10:40:43Z',
+      completed_at: '2022-05-10T10:40:47Z',
+      output: {
+        title: 'title',
+        summary: 'summary',
+        text: 'desc',
+        annotations_count: 0,
+      },
+      check_suite: {
+        id: 6405182391,
+      },
+      app: {
+        id: 11156,
+        slug: 'suite1',
+        node_id: 'MDM6QXBwMTExNTY=',
+        owner: {
+          login: 'mergeability',
+          id: 39203367,
+          node_id: 'MDEyOk9yZ2FuaXphdGlvbjM5MjAzMzY3',
+          gravatar_id: '',
+          type: 'Organization',
+          site_admin: false,
+        },
+        name: 'suite1',
+        description: 'desk',
+        created_at: '2018-04-17T06:53:44Z',
+        updated_at: '2020-08-08T05:28:57Z',
+      },
+      pull_requests: [],
+    },
+  ],
+};
 
+const checkSuitesMock = [
+  {
+    total_count: 1,
+    check_runs: [
+      {
+        id: 6368329592,
+        name: 'Mergeable: Title and description check',
+        node_id: 'CR_kwDOGkv22s8AAAABe5T_eA',
+        head_sha: 'fe729deda9f7efd338ff3491e914cb6ac2911631',
+        external_id: '',
+        status: 'completed',
+        conclusion: 'success',
+        started_at: '2022-05-10T10:40:43Z',
+        completed_at: '2022-05-10T10:40:47Z',
+        output: {
+          title: '1/3 Fail(s):  TITLE',
+          summary: 'summary',
+          text: 'text',
+          annotations_count: 0,
+          annotations_url: '',
+        },
+        check_suite: {
+          id: 6405182391,
+        },
+        app: {
+          id: 11156,
+          slug: 'suite1',
+          node_id: 'MDM6QXBwMTExNTY=',
+          owner: {
+            login: 'mergeability',
+            id: 39203367,
+            node_id: 'MDEyOk9yZ2FuaXphdGlvbjM5MjAzMzY3',
+            avatar_url: 'https://avatars.githubusercontent.com/u/39203367?v=4',
+            gravatar_id: '',
+            site_admin: false,
+          },
+          name: 'Mergeable',
+          description: 'description ',
+          created_at: '2018-04-17T06:53:44Z',
+          updated_at: '2020-08-08T05:28:57Z',
+        },
+        pull_requests: [],
+      },
+    ],
+  },
+];
+const combinedStatusMock = {
+  state: 'success',
+  statuses: [
+    {
+      url: 'https://api.github.com/repos/octocat/Hello-World/statuses/6dcb09b5b57875f334f61aebed695e2e4193db5e',
+      avatar_url: 'https://github.com/images/error/hubot_happy.gif',
+      id: 1,
+      node_id: 'MDY6U3RhdHVzMQ==',
+      state: 'success',
+      description: 'Build has completed successfully',
+      target_url: 'https://ci.example.com/1000/output',
+      context: 'continuous-integration/jenkins',
+      created_at: '2012-07-20T01:19:13Z',
+      updated_at: '2012-07-20T01:19:13Z',
+    },
+    {
+      url: 'https://api.github.com/repos/octocat/Hello-World/statuses/6dcb09b5b57875f334f61aebed695e2e4193db5e',
+      avatar_url: 'https://github.com/images/error/other_user_happy.gif',
+      id: 2,
+      node_id: 'MDY6U3RhdHVzMg==',
+      state: 'success',
+      description: 'Testing has completed successfully',
+      target_url: 'https://ci.example.com/2000/output',
+      context: 'security/brakeman',
+      created_at: '2012-08-20T01:19:13Z',
+      updated_at: '2012-08-20T01:19:13Z',
+    },
+  ],
+  sha: '6dcb09b5b57875f334f61aebed695e2e4193db5e',
+  total_count: 2,
+  repository: {
+    id: 1296269,
+    node_id: 'MDEwOlJlcG9zaXRvcnkxMjk2MjY5',
+    name: 'Hello-World',
+    full_name: 'octocat/Hello-World',
+    owner: {
+      login: 'octocat',
+      id: 1,
+      node_id: 'MDQ6VXNlcjE=',
+      avatar_url: 'https://github.com/images/error/octocat_happy.gif',
+      gravatar_id: '',
+      url: 'https://api.github.com/users/octocat',
+      html_url: 'https://github.com/octocat',
+      followers_url: 'https://api.github.com/users/octocat/followers',
+      following_url:
+        'https://api.github.com/users/octocat/following{/other_user}',
+      gists_url: 'https://api.github.com/users/octocat/gists{/gist_id}',
+      starred_url:
+        'https://api.github.com/users/octocat/starred{/owner}{/repo}',
+      subscriptions_url: 'https://api.github.com/users/octocat/subscriptions',
+      organizations_url: 'https://api.github.com/users/octocat/orgs',
+      repos_url: 'https://api.github.com/users/octocat/repos',
+      events_url: 'https://api.github.com/users/octocat/events{/privacy}',
+      received_events_url:
+        'https://api.github.com/users/octocat/received_events',
+      type: 'User',
+      site_admin: false,
+    },
+    private: false,
+    html_url: 'https://github.com/octocat/Hello-World',
+    description: 'This your first repo!',
+    fork: false,
+    url: 'https://api.github.com/repos/octocat/Hello-World',
+    archive_url:
+      'https://api.github.com/repos/octocat/Hello-World/{archive_format}{/ref}',
+    assignees_url:
+      'https://api.github.com/repos/octocat/Hello-World/assignees{/user}',
+    blobs_url:
+      'https://api.github.com/repos/octocat/Hello-World/git/blobs{/sha}',
+    branches_url:
+      'https://api.github.com/repos/octocat/Hello-World/branches{/branch}',
+    collaborators_url:
+      'https://api.github.com/repos/octocat/Hello-World/collaborators{/collaborator}',
+    comments_url:
+      'https://api.github.com/repos/octocat/Hello-World/comments{/number}',
+    commits_url:
+      'https://api.github.com/repos/octocat/Hello-World/commits{/sha}',
+    compare_url:
+      'https://api.github.com/repos/octocat/Hello-World/compare/{base}...{head}',
+    contents_url:
+      'https://api.github.com/repos/octocat/Hello-World/contents/{+path}',
+    contributors_url:
+      'https://api.github.com/repos/octocat/Hello-World/contributors',
+    deployments_url:
+      'https://api.github.com/repos/octocat/Hello-World/deployments',
+    downloads_url: 'https://api.github.com/repos/octocat/Hello-World/downloads',
+    events_url: 'https://api.github.com/repos/octocat/Hello-World/events',
+    forks_url: 'https://api.github.com/repos/octocat/Hello-World/forks',
+    git_commits_url:
+      'https://api.github.com/repos/octocat/Hello-World/git/commits{/sha}',
+    git_refs_url:
+      'https://api.github.com/repos/octocat/Hello-World/git/refs{/sha}',
+    git_tags_url:
+      'https://api.github.com/repos/octocat/Hello-World/git/tags{/sha}',
+    git_url: 'git:github.com/octocat/Hello-World.git',
+    issue_comment_url:
+      'https://api.github.com/repos/octocat/Hello-World/issues/comments{/number}',
+    issue_events_url:
+      'https://api.github.com/repos/octocat/Hello-World/issues/events{/number}',
+    issues_url:
+      'https://api.github.com/repos/octocat/Hello-World/issues{/number}',
+    keys_url: 'https://api.github.com/repos/octocat/Hello-World/keys{/key_id}',
+    labels_url:
+      'https://api.github.com/repos/octocat/Hello-World/labels{/name}',
+    languages_url: 'https://api.github.com/repos/octocat/Hello-World/languages',
+    merges_url: 'https://api.github.com/repos/octocat/Hello-World/merges',
+    milestones_url:
+      'https://api.github.com/repos/octocat/Hello-World/milestones{/number}',
+    notifications_url:
+      'https://api.github.com/repos/octocat/Hello-World/notifications{?since,all,participating}',
+    pulls_url:
+      'https://api.github.com/repos/octocat/Hello-World/pulls{/number}',
+    releases_url:
+      'https://api.github.com/repos/octocat/Hello-World/releases{/id}',
+    ssh_url: 'git@github.com:octocat/Hello-World.git',
+    stargazers_url:
+      'https://api.github.com/repos/octocat/Hello-World/stargazers',
+    statuses_url:
+      'https://api.github.com/repos/octocat/Hello-World/statuses/{sha}',
+    subscribers_url:
+      'https://api.github.com/repos/octocat/Hello-World/subscribers',
+    subscription_url:
+      'https://api.github.com/repos/octocat/Hello-World/subscription',
+    tags_url: 'https://api.github.com/repos/octocat/Hello-World/tags',
+    teams_url: 'https://api.github.com/repos/octocat/Hello-World/teams',
+    trees_url:
+      'https://api.github.com/repos/octocat/Hello-World/git/trees{/sha}',
+    hooks_url: 'http://api.github.com/repos/octocat/Hello-World/hooks',
+  },
+  commit_url:
+    'https://api.github.com/repos/octocat/Hello-World/6dcb09b5b57875f334f61aebed695e2e4193db5e',
+  url: 'https://api.github.com/repos/octocat/Hello-World/6dcb09b5b57875f334f61aebed695e2e4193db5e/status',
+};
 describe('test `prNeedsUpdate`', () => {
   test('pull request has already been merged', async () => {
     const pull = {
@@ -587,6 +809,116 @@ describe('test `prNeedsUpdate`', () => {
       expect(config.pullRequestReadyState).toHaveBeenCalled();
       expect(readyScope.isDone()).toEqual(true);
       expect(draftScope.isDone()).toEqual(true);
+    });
+
+    test('push event when PR must check suites for pass', async () => {
+      (config.pullRequestMustPassChecks as jest.Mock).mockReturnValue(true);
+      (config.checkSuitesToPass as jest.Mock).mockReturnValue(['suite1']);
+      (config.prRateLimit as jest.Mock).mockReturnValue(1);
+      (config.mergeMsg as jest.Mock).mockReturnValue('Merge msg');
+
+      const updater = new AutoUpdater(config, dummyPushEvent);
+      const updateSpy = jest.spyOn(updater, 'merge').mockResolvedValue(true);
+
+      const pullsMock = [];
+      const expectedPulls = 1;
+      for (let i = 0; i < expectedPulls; i++) {
+        pullsMock.push({
+          id: i,
+          number: i,
+          state: 'open',
+          head: {
+            repo: {
+              name: `${repo}`,
+              owner: {
+                login: `${owner}`,
+              },
+            },
+            ref: '72310e808eee18a19e05dd0bb9fd999067ae5720',
+          },
+          base: {
+            ref: '72310e808eee18a19e05dd0bb9fd999067ae5720',
+          },
+        });
+      }
+
+      nock('https://api.github.com:443')
+        .get(
+          `/repos/${owner}/${repo}/pulls?base=${branch}&state=open&sort=updated&direction=desc`,
+        )
+        .reply(200, pullsMock)
+        .get(
+          `/repos/${owner}/${repo}/commits/72310e808eee18a19e05dd0bb9fd999067ae5720/check-runs`,
+        )
+        .reply(200, checkRunsMock)
+        .get(
+          `/repos/${owner}/${repo}/commits/72310e808eee18a19e05dd0bb9fd999067ae5720/status`,
+        )
+        .reply(200, combinedStatusMock)
+        .get(
+          `/repos/${owner}/${repo}/check-suites/72310e808eee18a19e05dd0bb9fd999067ae5720/check-runs`,
+        )
+        .reply(200, checkSuitesMock);
+
+      const updated = await updater.handlePush();
+
+      expect(updated).toEqual(1);
+    });
+
+    test('push event when PR must check suites for fail', async () => {
+      (config.pullRequestMustPassChecks as jest.Mock).mockReturnValue(true);
+      (config.checkSuitesToPass as jest.Mock).mockReturnValue(['suite1']);
+      (config.prRateLimit as jest.Mock).mockReturnValue(1);
+      (config.mergeMsg as jest.Mock).mockReturnValue('Merge msg');
+
+      combinedStatusMock.state = 'fail';
+
+      const updater = new AutoUpdater(config, dummyPushEvent);
+      const updateSpy = jest.spyOn(updater, 'merge').mockResolvedValue(true);
+
+      const pullsMock = [];
+      const expectedPulls = 1;
+      for (let i = 0; i < expectedPulls; i++) {
+        pullsMock.push({
+          id: i,
+          number: i,
+          state: 'open',
+          head: {
+            repo: {
+              name: `${repo}`,
+              owner: {
+                login: `${owner}`,
+              },
+            },
+            ref: '72310e808eee18a19e05dd0bb9fd999067ae5720',
+          },
+          base: {
+            ref: '72310e808eee18a19e05dd0bb9fd999067ae5720',
+          },
+        });
+      }
+
+      nock('https://api.github.com:443')
+        .get(
+          `/repos/${owner}/${repo}/pulls?base=${branch}&state=open&sort=updated&direction=desc`,
+        )
+        .reply(200, pullsMock)
+        .get(
+          `/repos/${owner}/${repo}/commits/72310e808eee18a19e05dd0bb9fd999067ae5720/check-runs`,
+        )
+        .reply(200, checkRunsMock)
+        .get(
+          `/repos/${owner}/${repo}/commits/72310e808eee18a19e05dd0bb9fd999067ae5720/status`,
+        )
+        .reply(200, combinedStatusMock)
+        .get(
+          `/repos/${owner}/${repo}/check-suites/72310e808eee18a19e05dd0bb9fd999067ae5720/check-runs`,
+        )
+        .reply(200, checkSuitesMock);
+
+      const updated = await updater.handlePush();
+
+      expect(updated).toEqual(0);
     });
   });
 });
