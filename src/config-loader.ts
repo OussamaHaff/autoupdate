@@ -51,6 +51,10 @@ export class ConfigLoader {
     return parseInt(this.getValue('RETRY_COUNT', false, 5), 10);
   }
 
+  prRateLimit(): number {
+    return parseInt(this.getValue('PR_RATE_LIMIT', false, -1), 10);
+  }
+
   retrySleep(): number {
     // In milliseconds.
     return parseInt(this.getValue('RETRY_SLEEP', false, 300), 10);
@@ -71,6 +75,21 @@ export class ConfigLoader {
 
   pullRequestReadyState(): string {
     return this.getValue('PR_READY_STATE', false, 'all');
+  }
+
+  pullRequestMustPassChecks(): boolean {
+    const val = this.getValue('PR_MUST_PASS_CHECKS', false, 'false');
+    return val === 'true';
+  }
+
+  checkSuitesToPass(): Array<string> {
+    const rawLabels = this.getValue('PR_CHECK_SUITS_TO_PASS', false, '')
+      .toString()
+      .trim();
+    if (rawLabels === '') {
+      return [];
+    }
+    return rawLabels.split(',').map((label: string) => label.trim());
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

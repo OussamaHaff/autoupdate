@@ -169,13 +169,32 @@ export class AutoUpdater {
     let pullsPage: octokit.OctokitResponse<any>;
     for await (pullsPage of this.octokit.paginate.iterator(paginatorOpts)) {
       let pull: PullRequestResponse['data'];
-      for (pull of pullsPage.data) {
-        ghCore.startGroup(`PR-${pull.number}`);
-        const isUpdated = await this.update(owner, pull);
-        ghCore.endGroup();
+      const prRateLimit = this.config.prRateLimit();
 
-        if (isUpdated) {
-          updated++;
+      if (prRateLimit == -1) {
+        ghCore.info(`No PR limit rate. Trying to update all PRs`);
+        for (pull of pullsPage.data) {
+          ghCore.startGroup(`PR-${pull.number}`);
+          const isUpdated = await this.update(owner, pull);
+          ghCore.endGroup();
+
+          if (isUpdated) {
+            updated++;
+          }
+        }
+      } else {
+        ghCore.info(`PR RATE LIMIT = ${prRateLimit}.`);
+        for (pull of pullsPage.data) {
+          ghCore.startGroup(`PR-${pull.number}`);
+          const isUpdated = await this.update(owner, pull);
+          ghCore.endGroup();
+
+          if (isUpdated) {
+            updated++;
+          }
+          if (updated == prRateLimit) {
+            break;
+          }
         }
       }
     }
@@ -260,6 +279,111 @@ export class AutoUpdater {
       return false;
     }
 
+    const isPullRequestMustPassChecks = this.config.pullRequestMustPassChecks();
+    if (isPullRequestMustPassChecks) {
+      try {
+        // Get all check runs for the selected ref
+        // See https://docs.github.com/en/rest/checks/runs#list-check-runs-for-a-git-reference
+        const { data: checkSuitesResult } =
+          await this.octokit.rest.checks.listForRef({
+            owner: pull.head.repo.owner.login,
+            repo: pull.head.repo.name,
+            ref: pull.head.ref,
+          });
+
+        // Get combined status for a specific commit ref
+        // See https://docs.github.com/en/rest/commits/statuses#get-the-combined-status-for-a-specific-reference
+        const { data: combinedStatus } =
+          await this.octokit.rest.repos.getCombinedStatusForRef({
+            owner: pull.head.repo.owner.login,
+            repo: pull.head.repo.name,
+            ref: pull.head.ref,
+          });
+
+        ghCore.startGroup(
+          `Check runs were retrieved for ref: ${pull.head.ref}`,
+        );
+        ghCore.info(
+          `Number of check runs found: ${checkSuitesResult.check_runs.length}`,
+        );
+        ghCore.info(JSON.stringify(checkSuitesResult.check_runs));
+        ghCore.endGroup();
+
+        ghCore.startGroup(
+          `Commit statuses were retrieved for ref: ${pull.head.ref}`,
+        );
+        ghCore.info(JSON.stringify(combinedStatus));
+        ghCore.endGroup();
+
+        ghCore.startGroup(`Retrieving check suites filter`);
+        const checkSuitesToPass = this.config.checkSuitesToPass();
+        if (checkSuitesToPass.length == 0) {
+          ghCore.info(
+            `No check suites array was passed. All check runs will be verified.`,
+          );
+        } else {
+          ghCore.info(
+            `Verify only check runs from these check suites ${JSON.stringify(
+              checkSuitesToPass,
+            )}`,
+          );
+        }
+        ghCore.endGroup();
+
+        let hasNoFailingChecks = true;
+        checkSuitesResult.check_runs.forEach((checkRun) => {
+          ghCore.startGroup(`Verifying check run ${checkRun.name}`);
+          ghCore.info(
+            `Check run status : ${checkRun.status} with conclusion ${checkRun.conclusion}`,
+          );
+
+          if (checkSuitesToPass.length == 0) {
+            // No check suite filter was passed, we will check only the conclusion of the check run.
+            if (checkRun.conclusion !== 'success') {
+              ghCore.info(`Check run ${checkRun.name} was not successful!`);
+              hasNoFailingChecks = false;
+            }
+          } else {
+            // A list of check filters was passed. Therefore we will check the status of the check runs that belong
+            // to one of the passed check suite filters.
+            const checkSuitesApp = checkRun.app;
+            if (checkSuitesApp) {
+              // checkSuitesApp is not null and not undefined
+              if (
+                checkSuitesToPass.includes(checkSuitesApp.name) &&
+                checkRun.conclusion !== 'success'
+              ) {
+                ghCore.info(`Check run ${checkRun.name} was not successful!`);
+                hasNoFailingChecks = false;
+              }
+            } else {
+              ghCore.info(
+                `Check run was skipped because it does not have a check suite app object.`,
+              );
+              ghCore.info(JSON.stringify(checkRun));
+            }
+          }
+          ghCore.endGroup();
+        });
+
+        const commitStatusSuccess = combinedStatus.state === 'success';
+
+        ghCore.info(`Does PR have failing checks? ${hasNoFailingChecks}`);
+        ghCore.info(
+          `Is PR combined commit status successful? ${commitStatusSuccess}`,
+        );
+
+        return hasNoFailingChecks && commitStatusSuccess;
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          ghCore.error(
+            `Caught error trying to verify check suites: ${e.message}`,
+          );
+        }
+        return false;
+      }
+    }
+
     try {
       const { data: comparison } =
         await this.octokit.rest.repos.compareCommitsWithBasehead({
@@ -305,6 +429,7 @@ export class AutoUpdater {
     const readyStateFilter = this.config.pullRequestReadyState();
     if (readyStateFilter !== 'all') {
       ghCore.info('Checking PR ready state');
+      ghCore.info(`PR ${JSON.stringify(pull)}`);
 
       if (readyStateFilter === 'draft' && !pull.draft) {
         ghCore.info(

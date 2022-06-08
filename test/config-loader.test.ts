@@ -92,6 +92,27 @@ const tests = [
     default: 'all',
     type: 'string',
   },
+  {
+    name: 'prRateLimit',
+    envVar: 'PR_RATE_LIMIT',
+    required: false,
+    default: -1,
+    type: 'int',
+  },
+  {
+    name: 'pullRequestMustPassChecks',
+    envVar: 'PR_MUST_PASS_CHECKS',
+    required: false,
+    default: false,
+    type: 'bool',
+  },
+  {
+    name: 'checkSuitesToPass',
+    envVar: 'PR_CHECK_SUITS_TO_PASS',
+    required: false,
+    default: [],
+    type: 'list',
+  },
 ];
 
 for (const testDef of tests) {
